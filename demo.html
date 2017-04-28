@@ -1,0 +1,206 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head>
+  <title>table_select</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="generator" content="editplus" />
+  <meta name="author" content="" />
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  <script src='jquery.js'></script>
+  <script src="colResizable.js"></script>
+  <script type="text/javascript" src="dragtr.js"></script>
+  <style>
+    body {font:14px/1.5em arial;}
+	.chkTb {width:100%;border:1px solid #c0c0c0;border-collapse:collapse;text-align:center;box-shadow: 0px 3px 5px #c0c0c0;-webkit-box-shadow: 0px 3px 5px #c0c0c0;-moz-box-shadow: 0px 3px 5px #c0c0c0;}
+	.chkTb thead {background:#494949;color:#fff;}
+	.chkTb td {border:1px solid #f0f0f0;}
+	.chkTb .odd {background:#eee;}
+    .chkTb .current {background:#AED8F0;}
+    .chkTb .ckCur {background:#7BC2EB;color:#fff;}
+  </style>
+ </head>
+
+ <body>
+	<table class='chkTb'>
+		<thead>
+			<tr>
+				<td width='6%' class=""><label><input type='checkbox' class='check'/>全选</label></td>
+				<td witdh='22%'>姓名</td>
+				<td witdh='22%'>年龄</td>
+				<td witdh='22%' data-sort="出生">出生</td>
+				<td witdh='22%'>性别</td>
+			</tr>
+		</thead>
+
+		<tbody>
+			<tr>
+			    <td><input type='checkbox' /></td>
+				<td>张三</td>
+				<td>23</td>
+				<td>1995</td>
+				<td>男</td>
+			</tr>
+			<tr>
+				<td><input type='checkbox' /></td>
+				<td>李四</td>
+				<td>23</td>
+				<td>1994</td>
+				<td>男</td>
+			</tr>
+			<tr>
+				<td><input type='checkbox' /></td>
+				<td>王五</td>
+				<td>23</td>
+				<td>1993</td>
+				<td>男</td>
+			</tr>
+			<tr>
+				<td><input type='checkbox' /></td>
+				<td>赵六</td>
+				<td>23</td>
+				<td>1992</td>
+				<td>男</td>
+			</tr>
+			<tr>
+				<td><input type='checkbox' /></td>
+				<td>钱七</td>
+				<td>23</td>
+				<td>1991</td>
+				<td>男</td>
+			</tr>
+		</tbody>
+	</table>
+
+	<script>
+        $(".chkTb").colResizable();//调用调宽
+
+
+            $(".chkTb tbody").tableDnD({
+                onDrop: function(table, row) {
+                    var rows = table.tBodies[0].rows;
+                    var debugStr = "拖动第 "+row.id+" 行，新的排序是: ";
+                    for (var i=0; i<rows.length; i++) {
+                        debugStr += rows[i].id+" ";
+                    }
+                    //alert(debugStr);
+                }
+            });
+
+		;(function ()
+		{
+			$.fn.table=function (options)
+			{
+				var defaults ={
+					oddRow : 'odd' ,			//偶数行
+					current : 'current' ,		//当前状态
+                    ckCur : 'ckCur' ,			//点击后的当前状态
+					eventEnt : 'mouseenter' ,   //事件自定义    移入
+					eventLev : 'mouseleave' ,   //事件自定义    移出
+                    eventCk : 'click'  			//事件自定义    点击
+				}
+
+				var options = $.extend(defaults,options);
+
+				this.each(function ()
+				{
+					var _this = $(this),
+				    Chk = $(this).children().find('input[type=checkbox]');
+					
+					_this.find('tr:odd').addClass(options.oddRow);
+
+					_this.find('tr').bind(options.eventEnt,function () //移入添加行的样式
+					{
+						$(this).addClass(options.current);
+						
+					}).bind(options.eventLev,function ()			//移出删除行的样式
+					{
+						$(this).removeClass(options.current);
+						
+					}).bind(options.eventCk , function ()			//点击行的事件
+                    {
+                        var isCk = $(this).children().find('input[type=checkbox]').is(':checked') ,
+						 sltr = $(this).children('td').not(":first-child");
+						 
+						 $.each(sltr,function ()
+						 {
+							 var tdval = $(this).text();
+							 //alert(tdval);	 
+						 });
+						
+                        if(isCk)
+                        {
+                            $(this).removeClass(options.ckCur).children().find('input[type=checkbox]').attr('checked',false);
+                        }
+                        else
+                        {
+                            $(this).addClass(options.ckCur).children().find('input[type=checkbox]').attr('checked',true);
+                        }
+
+                    });
+
+
+                    //点击复选框，行的选中
+                    Chk.bind(options.eventCk,function (e)
+                    {
+                        var isCk = !$(this).is(':checked');
+							
+						if(isCk)
+                        {
+                            $(this).attr('checked',false).parents('tr').removeClass(options.ckCur);
+                        }
+                        else
+                        {
+                            $(this).attr('checked',true).parents('tr').addClass(options.ckCur);
+                        }
+                        e.stopPropagation();
+                    })
+
+				});
+			} ,
+
+
+            //点击全选按钮选中所有的行
+			$.fn.check = function (options)
+			{
+				var defaults ={
+					ckCur : 'ckCur' ,
+					eveCk : 'click' ,
+                    allinput : 'tbody input[type=checkbox]'
+				}
+
+				var options = $.extend(defaults , options);
+
+				this.each(function ()
+				{
+					var _this = $(this);
+					_this.bind(options.eveCk , function ()
+					{
+                        if(_this.is(':checked'))
+                        {
+                            $(options.allinput).attr('checked',true).parents('tr').addClass(options.ckCur);
+                        }
+                        else
+                        {
+                            $(options.allinput).attr('checked',false).parents('tr').removeClass(options.ckCur);
+                        }
+
+					});
+				});
+			}
+		})(jQuery);
+
+        /*
+            $('.chkTb tbody').table({
+                //自定义属性
+                 oddRow : 'odd' ,
+				 current : 'current' ,
+                 ckCur : 'ckCur'
+            });
+        */
+		$('.chkTb tbody').table();
+		$('.chkTb .check').check();
+
+	</script>
+ </body>
+</html>
